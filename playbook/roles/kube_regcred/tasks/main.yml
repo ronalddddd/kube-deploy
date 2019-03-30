@@ -1,0 +1,6 @@
+- name: Apply docker registry credentials secret
+  k8s:
+    state: present
+    namespace: "{{ deploy_namespace }}"
+    definition: "{{ item }}"
+  loop: "{{ lookup('template', 'regcred.yml') | from_yaml_all | list }}"

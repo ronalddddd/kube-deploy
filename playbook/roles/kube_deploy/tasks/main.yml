@@ -1,0 +1,28 @@
+---
+- name: Ensure .kube folder exists
+  file:
+    path: /root/.kube
+    state: directory
+
+- name: Render kube config template
+  template:
+    src: "config.yml"
+    dest: /root/.kube/config
+
+- name: Apply namespace
+  k8s:
+    state: "{{ deploy_state }}"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ deploy_namespace }}"
+
+- include_role:
+    name: kube_regcred
+
+- include_role:
+    name: "{{ deploy_role | default('deployment') }}"
+    apply:
+      tags:
+        - deployment

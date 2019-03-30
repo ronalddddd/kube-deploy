@@ -1,0 +1,79 @@
+- name: Apply gitlab-runner namespace
+  k8s:
+    state: "{{ deploy_state }}"
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ deploy_namespace }}"
+
+- name: Apply RBAC for gitlab-runner namespace
+  k8s:
+    state: "{{ deploy_state }}"
+    definition: "{{ item }}"
+  loop: "{{ lookup('template', 'gitlab-runner-rbac.yml') | from_yaml_all | list }}"
+
+# How to get a gitlab runner token: https://docs.gitlab.com/ee/api/runners.html#register-a-new-runner
+# Example:
+# curl --request POST "https://gitlab.com/api/v4/runners" --form "token=<REGISTRATION TOKEN>" --form "description=dev-cluster-runner"
+- name: Gitlab Runner ConfigMap
+  k8s:
+    state: "{{ deploy_state }}"
+    definition:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: gitlab-runner
+        namespace: "{{ deploy_namespace }}"
+      data:
+        config.toml: |
+          concurrent = 4
+
+          [[runners]]
+            name = "Kubernetes Runner"
+            url = "https://gitlab.com/"
+            token = "{{ gitlab_runner_token }}"
+            executor = "kubernetes"
+            [runners.kubernetes]
+              namespace = "gitlab"
+              image = "busybox"
+
+- name: Gitlab Runner Deployment
+  k8s:
+    state: "{{ deploy_state }}"
+    definition:
+      apiVersion: extensions/v1beta1
+      kind: Deployment
+      metadata:
+        name: gitlab-runner
+        namespace: "{{ deploy_namespace }}"
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            name: gitlab-runner
+        template:
+          metadata:
+            labels:
+              name: gitlab-runner
+          spec:
+            serviceAccountName: gitlab-runner-admin
+            containers:
+              - args:
+                  - run
+                image: gitlab/gitlab-runner:latest
+                name: gitlab-runner
+                volumeMounts:
+                  - mountPath: /etc/gitlab-runner
+                    name: config
+                  - mountPath: /etc/ssl/certs
+                    name: cacerts
+                    readOnly: true
+            restartPolicy: Always
+            volumes:
+              - configMap:
+                  name: gitlab-runner
+                name: config
+              - hostPath:
+                  path: /usr/share/ca-certificates/mozilla
+                name: cacerts

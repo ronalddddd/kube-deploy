@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: regcred
+data:
+  .dockerconfigjson: "{{ docker_config_json }}"
+type: kubernetes.io/dockerconfigjson

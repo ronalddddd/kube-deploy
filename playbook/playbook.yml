@@ -1,0 +1,16 @@
+---
+- name: Deploy to Kubernetes
+  hosts: kubectl
+  vars:
+    cluster_ca_crt_b64: "{{ lookup('env','CLUSTER_CA_CERT') }}"
+    cluster_server: "{{ lookup('env','CLUSTER_SERVER') }}"
+    cluster_token: "{{ lookup('env','CLUSTER_TOKEN') }}"
+    docker_config_json: "{{ lookup('env','DOCKER_CONFIG_JSON') }}"
+    deploy_namespace: "{{ lookup('env','DEPLOY_NAMESPACE') }}"
+    deploy_state: "{{ lookup('env','DEPLOY_STATE') }}"
+    deploy_image: "{{ lookup('env','DEPLOY_IMAGE') }}"
+    deploy_tag: "{{ lookup('env','DEPLOY_TAG') }}"
+    deploy_host: "{{ lookup('env','DEPLOY_HOST') }}"
+    deploy_config: "{{ lookup('env','DEPLOY_CONFIG') }}"
+  roles:
+    - {role: "kube_deploy", tags: ["deployment"]}
