@@ -31,6 +31,7 @@ RUN pip install openshift
 ADD playbook /playbook
 
 WORKDIR /playbook
+RUN chmod u+x /playbook/vault-password.sh
 RUN mkdir /deployment
 
 # Pretty-print Ansible output
