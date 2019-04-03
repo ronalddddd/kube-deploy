@@ -2,7 +2,9 @@ version: '3'
 services:
   deploy:
     build: "."
+    environment:
+      DEPLOY_VAULT_PASS: "foobar"
     env_file:
       - ".env"
+      - ".gitlab_runner.env"
     restart: "no"
-
