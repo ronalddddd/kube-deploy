@@ -18,6 +18,30 @@
       metadata:
         name: "{{ deploy_namespace }}"
 
+- name: Check ConfigMap exists
+  stat:
+    path: "/playbook/roles/deployment/files/configmap-{{ deploy_config }}.yml"
+  register: stat_configmap
+
+- name: Apply ConfigMap
+  k8s:
+    state: "{{ deploy_state }}"
+    namespace: "{{ deploy_namespace }}"
+    src: "/playbook/roles/deployment/files/configmap-{{ deploy_config }}.yml"
+  when: stat_configmap.stat.exists == True
+
+- name: Check Secrets exists
+  stat:
+    path: "/playbook/roles/deployment/files/secrets-{{ deploy_config }}.yml"
+  register: stat_secrets
+
+- name: Apply Secrets
+  k8s:
+    state: "{{ deploy_state }}"
+    namespace: "{{ deploy_namespace }}"
+    definition: "{{ lookup('file', '/playbook/roles/deployment/files/secrets-{{ deploy_config }}.yml') }}"
+  when: stat_secrets.stat.exists == True
+
 - include_role:
     name: kube_regcred
 

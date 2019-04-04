@@ -45,6 +45,7 @@ How it works:
     - `DEPLOY_CONFIG`: (optional) Used for identifying which set of configurations to use in your playbook role
         - exposed in Ansible as `deploy_config`
         - e.g. "staging" or "production"
+    - `DEPLOY_VAULT_PASS`: (optional) Used to decrypt ansible-vault encrypted files
     - `EXTRA_VARS`: (optional) Variables for `ansible-playbook`'s `--extra-vars` command
         - e.g. `deploy_role=ingress acme_email=foo@example.com`
 
@@ -56,6 +57,12 @@ How it works:
       --env-file=/path/to/.env
       ronalddddd/kube-deploy
     ```
+
+- Optionally you can add ConfigMap and Secrets definitions into the `deployment/files` directory: 
+  - `deployment/files/configmap-<DEPLOY_CONFIG>.yml`
+  - `deployment/files/secrets-<DEPLOY_CONFIG>.yml`
+    - these can be encrypted using `ansible-vault encrypt`
+    - if you encrypt them, provide the decryption passphrase into `DEPLOY_VAULT_PASS`
 
 ### Deploying the included Ingress Nginx role
 
