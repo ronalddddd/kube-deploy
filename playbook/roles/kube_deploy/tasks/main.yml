@@ -4,10 +4,15 @@
     path: /root/.kube
     state: directory
 
+- name: check for kube config file
+  stat: path=/root/.kube/config
+  register: kubeconfig_exists
+
 - name: Render kube config template
   template:
     src: "config.yml"
     dest: /root/.kube/config
+  when: not kubeconfig_exists.stat.exists
 
 - name: Apply namespace
   k8s:
