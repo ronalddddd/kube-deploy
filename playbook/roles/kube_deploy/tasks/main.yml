@@ -16,7 +16,7 @@
 
 - name: Apply namespace
   k8s:
-    state: "{{ deploy_state }}"
+    state: "{{ deploy_namespace_state }}"
     definition:
       apiVersion: v1
       kind: Namespace

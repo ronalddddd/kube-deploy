@@ -33,6 +33,7 @@ How it works:
             ```  
       - copy the value from the field `.dockerconfigjson` 
     - `DEPLOY_NAMESPACE`: Kubernetes namespace that will be created/deleted
+    - `DEPLOY_NAMESPACE_STATE`: `present` | `absent` -- sometimes you want to keep the namespace even if you are removing the deployment because other deployments use it
     - `DEPLOY_STATE`: `present` | `absent`
     - `DEPLOY_IMAGE`: (optional) The docker image 
         - exposed in Ansible as `deploy_image`
